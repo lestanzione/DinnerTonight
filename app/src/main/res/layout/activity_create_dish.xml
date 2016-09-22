@@ -3,28 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="com.empire.android.dinnertonight.MainActivity">
+    tools:context="com.empire.android.dinnertonight.CreateDishActivity">
 
-    <Button
-        android:id="@+id/createDinnerGroupButton"
+    <EditText
+        android:id="@+id/createDishNameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Group"/>
+        android:hint="Email"
+        android:inputType="textAutoComplete"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"/>
 
     <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/dinnerGroupRecyclerView"
+        android:id="@+id/createDishCreateButton"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:text="Create"/>
 
 </LinearLayout>

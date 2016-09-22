@@ -8,23 +8,18 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="com.empire.android.dinnertonight.MainActivity">
+    tools:context="com.empire.android.dinnertonight.NewDinnerGroupActivity">
+
+    <EditText
+        android:id="@+id/newDinnerGroupNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Group Name"/>
 
     <Button
-        android:id="@+id/createDinnerGroupButton"
+        android:id="@+id/newDinnerGroupCreateButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Create Group"/>
-
-    <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/dinnerGroupRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
 </LinearLayout>

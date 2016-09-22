@@ -15,7 +15,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".NewDinnerGroupActivity" />
+        <activity android:name=".DinnerGroupActivity" />
+        <activity android:name=".CreateDishActivity"></activity>
     </application>
 
 </manifest>

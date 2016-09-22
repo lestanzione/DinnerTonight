@@ -16,11 +16,19 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
+    private int OPERATION_CODE = 0;
+    private static final int CODE_LOGIN = 1;
+    private static final int CODE_SIGNUP = 2;
+
+    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -29,12 +37,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
 
                     // User is signed in
@@ -47,12 +56,33 @@ public class LoginActivity extends AppCompatActivity {
                     // The user's ID, unique to the Firebase project. Do NOT use this value to
                     // authenticate with your backend server, if you have one. Use
                     // FirebaseUser.getToken() instead.
-                    String uid = user.getUid();
+                    final String uid = user.getUid();
 
                     Log.d(TAG, "name: " + name);
                     Log.d(TAG, "email: " + email);
                     Log.d(TAG, "photoUrl: " + photoUrl);
                     Log.d(TAG, "uid: " + uid);
+
+
+                    if(OPERATION_CODE == CODE_SIGNUP){
+                        Log.d(TAG, "Registering new user..");
+
+                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(email)
+                                .build();
+
+                        user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "User profile updated.");
+
+                                    mDatabase.child("users").child(uid).setValue(user);
+                                }
+                            }
+                        });
+
+                    }
 
                     showMainActivity();
 
@@ -60,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
-                // ...
+
             }
         };
 
@@ -97,6 +127,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void doSignUp(){
 
+        OPERATION_CODE = CODE_SIGNUP;
+
         String email = ((EditText) findViewById(R.id.loginEmailEditText)).getText().toString();
         String password = ((EditText) findViewById(R.id.loginPasswordEditText)).getText().toString();
 
@@ -117,9 +149,9 @@ public class LoginActivity extends AppCompatActivity {
                         if (!task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            return;
                         }
 
-                        // ...
                     }
                 }).addOnFailureListener(this, new OnFailureListener() {
             @Override
@@ -128,15 +160,17 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = this.getIntent();
-        intent.putExtra("SIGN_UP_EMAIL", email);
-        intent.putExtra("SIGN_UP_PASSWORD", password);
-        setResult(RESULT_OK, intent);
-        finish();
+//        Intent intent = this.getIntent();
+//        intent.putExtra("SIGN_UP_EMAIL", email);
+//        intent.putExtra("SIGN_UP_PASSWORD", password);
+//        setResult(RESULT_OK, intent);
+//        finish();
 
     }
 
     public void doLogin(){
+
+        OPERATION_CODE = CODE_LOGIN;
 
         setProgressBarIndeterminate(true);
 
@@ -161,9 +195,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithEmail", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            return;
                         }
 
-                        // ...
                     }
                 });
 
