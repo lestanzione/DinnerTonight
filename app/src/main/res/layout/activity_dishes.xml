@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/coordinatorLayout"
-    tools:context="com.empire.android.dinnertonight.NewDinnerGroupActivity">
+    tools:context="com.empire.android.dinnertonight.DishesActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBar"
@@ -30,17 +30,10 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <EditText
-            android:id="@+id/newDinnerGroupNameEditText"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/dishesRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Group Name"/>
-
-        <Button
-            android:id="@+id/newDinnerGroupCreateButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Create Group"/>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

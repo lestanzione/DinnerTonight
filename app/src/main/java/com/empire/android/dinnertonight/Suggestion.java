@@ -1,17 +1,21 @@
 package com.empire.android.dinnertonight;
 
+import java.util.ArrayList;
+
 /**
  * Created by lstanzione on 9/22/2016.
  */
-public class DaySuggestion {
+public class Suggestion {
 
     private String id;
     private String day;
+    private int votes;
+    private ArrayList<String> voteUsers;
     private String dishId;
     private String creationUserId;
-    private String creationTimestamp;
+    private long creationTimestamp;
     private String modificationUserId;
-    private String modificationTimestamp;
+    private long modificationTimestamp;
     private boolean active;
 
     public String getId() {
@@ -30,6 +34,48 @@ public class DaySuggestion {
         this.day = day;
     }
 
+    public int getVotes() {
+        return votes;
+    }
+
+    public void setVotes(int votes) {
+        this.votes = votes;
+    }
+
+    public void addVote(){
+        this.votes++;
+    }
+
+    public void removeVote(){
+        this.votes--;
+    }
+
+    public ArrayList<String> getVoteUsers() {
+
+        if(this.voteUsers == null){
+            this.voteUsers = new ArrayList<String>();
+        }
+
+        return voteUsers;
+    }
+
+    public void setVoteUsers(ArrayList<String> voteUsers) {
+        this.voteUsers = voteUsers;
+    }
+
+    public void addVoteUser(String userId){
+
+        if(this.voteUsers == null){
+            this.voteUsers = new ArrayList<String>();
+        }
+
+        this.voteUsers.add(userId);
+    }
+
+    public void removeVoteUser(String userId){
+        this.voteUsers.remove(userId);
+    }
+
     public String getDishId() {
         return dishId;
     }
@@ -46,11 +92,11 @@ public class DaySuggestion {
         this.creationUserId = creationUserId;
     }
 
-    public String getCreationTimestamp() {
+    public long getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public void setCreationTimestamp(String creationTimestamp) {
+    public void setCreationTimestamp(long creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 
@@ -62,11 +108,11 @@ public class DaySuggestion {
         this.modificationUserId = modificationUserId;
     }
 
-    public String getModificationTimestamp() {
+    public long getModificationTimestamp() {
         return modificationTimestamp;
     }
 
-    public void setModificationTimestamp(String modificationTimestamp) {
+    public void setModificationTimestamp(long modificationTimestamp) {
         this.modificationTimestamp = modificationTimestamp;
     }
 

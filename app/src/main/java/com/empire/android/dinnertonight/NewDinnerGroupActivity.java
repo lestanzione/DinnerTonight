@@ -3,6 +3,7 @@ package com.empire.android.dinnertonight;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +24,7 @@ public class NewDinnerGroupActivity extends AppCompatActivity {
 
     private static final String TAG = NewDinnerGroupActivity.class.getSimpleName();
 
+    private Toolbar toolbar;
     private EditText newDinnerGroupNameEditText;
     private Button newDinnerGroupCreateButton;
 
@@ -40,6 +42,7 @@ public class NewDinnerGroupActivity extends AppCompatActivity {
             showLoginActivity();
         }
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         newDinnerGroupNameEditText = (EditText) findViewById(R.id.newDinnerGroupNameEditText);
         newDinnerGroupCreateButton = (Button) findViewById(R.id.newDinnerGroupCreateButton);
 
@@ -49,6 +52,9 @@ public class NewDinnerGroupActivity extends AppCompatActivity {
                 createGroup();
             }
         });
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("New Group");
 
     }
 

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/coordinatorLayout"
-    tools:context="com.empire.android.dinnertonight.NewDinnerGroupActivity">
+    tools:context="com.empire.android.dinnertonight.NewDishActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBar"
@@ -31,16 +31,22 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <EditText
-            android:id="@+id/newDinnerGroupNameEditText"
+            android:id="@+id/newDishNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Group Name"/>
+            android:hint="Dish name"
+            android:inputType="textAutoComplete"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"/>
 
         <Button
-            android:id="@+id/newDinnerGroupCreateButton"
+            android:id="@+id/newDishCreateButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Group"/>
+            android:text="Create"/>
 
     </LinearLayout>
 

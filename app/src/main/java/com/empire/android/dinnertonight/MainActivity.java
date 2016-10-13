@@ -1,5 +1,6 @@
 package com.empire.android.dinnertonight;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -7,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
 
     private boolean signedUser = false;
 
+    private Toolbar toolbar;
     private Button createDinnerGroupButton;
     private Button logoutButton;
     private RecyclerView dinnerGroupRecyclerView;
@@ -47,10 +50,14 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         createDinnerGroupButton = (Button) findViewById(R.id.createDinnerGroupButton);
         logoutButton = (Button) findViewById(R.id.logoutButton);
         dinnerGroupRecyclerView = (RecyclerView) findViewById(R.id.dinnerGroupRecyclerView);
         dinnerGroupRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Dinner Tonight");
 
         createDinnerGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,12 +133,7 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
     }
 
     private void showLoginActivity(){
-
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-
+        LoginActivity.start(getApplicationContext());
     }
 
     private void signOut(){
@@ -154,14 +156,8 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
 
     private void getGroups(){
 
-        getGroupsKey();
-
-    }
-
-    private void getGroupsKey(){
-
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("user-dinnerGroups").child(user.getUid()).addListenerForSingleValueEvent(
+        mDatabase.child(Configs.NODE_USER_DINNER_GROUPS).child(user.getUid()).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -201,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
     private void getGroupsObject(final String dinnerGroupKey){
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("dinnerGroups").child(dinnerGroupKey).addListenerForSingleValueEvent(
+        mDatabase.child(Configs.NODE_DINNER_GROUPS).child(dinnerGroupKey).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -270,10 +266,15 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
     public void onDinnerGroupSelected(int position){
         Toast.makeText(MainActivity.this, "Group selected: " + userDinnerGroupList.get(position).getName(), Toast.LENGTH_SHORT).show();
 
-        Intent dinnerGroupIntent = new Intent(getApplicationContext(), DinnerGroupActivity.class);
-        dinnerGroupIntent.putExtra("SELECTED_DINNER_GROUP", userDinnerGroupList.get(position));
-        startActivity(dinnerGroupIntent);
+        DinnerGroupActivity.start(getApplicationContext(), userDinnerGroupList.get(position));
 
+    }
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, MainActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(starter);
     }
 
 }

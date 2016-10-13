@@ -1,8 +1,10 @@
 package com.empire.android.dinnertonight;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -15,24 +17,24 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateDishActivity extends AppCompatActivity {
+public class NewDishActivity extends AppCompatActivity {
 
-    private static final String TAG = CreateDishActivity.class.getSimpleName();
+    private static final String TAG = NewDishActivity.class.getSimpleName();
 
-    private EditText createDishNameEditText;
-    private Button createDishCreateButton;
+    private Toolbar toolbar;
+    private EditText newDishNameEditText;
+    private Button newDishCreateButton;
 
     private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_dish);
+        setContentView(R.layout.activity_new_dish);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -41,33 +43,32 @@ public class CreateDishActivity extends AppCompatActivity {
             showLoginActivity();
         }
 
-        createDishNameEditText = (EditText) findViewById(R.id.createDishNameEditText);
-        createDishCreateButton = (Button) findViewById(R.id.createDishCreateButton);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        newDishNameEditText = (EditText) findViewById(R.id.newDishNameEditText);
+        newDishCreateButton = (Button) findViewById(R.id.newDishCreateButton);
 
-        createDishCreateButton.setOnClickListener(new View.OnClickListener() {
+        newDishCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createDish();
             }
         });
 
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("New Dish");
+
     }
 
     private void showLoginActivity(){
-
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-
+        LoginActivity.start(getApplicationContext());
     }
 
     private void createDish(){
 
-        String dishName = createDishNameEditText.getText().toString().trim();
+        String dishName = newDishNameEditText.getText().toString().trim();
 
         if(dishName.trim().isEmpty()){
-            Toast.makeText(CreateDishActivity.this, "Give a name to your new dish!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NewDishActivity.this, "Give a name to your new dish!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -84,10 +85,12 @@ public class CreateDishActivity extends AppCompatActivity {
 
         Map<String, Object> postValues = newDish.toMap();
 
-        Log.d(TAG, "/dishes/" + newDishKey);
+        Log.d(TAG, "/" + Configs.NODE_DISHES + "/" + newDishKey);
+        Log.d(TAG, "/" + Configs.NODE_USER_DISHES + "/" + user.getUid() + "/" + newDishKey);
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/dishes/" + newDishKey, postValues);
+        childUpdates.put("/" + Configs.NODE_DISHES + "/" + newDishKey, postValues);
+        childUpdates.put("/" + Configs.NODE_USER_DISHES + "/" + user.getUid() + "/" + newDishKey, true);
 
         mDatabase.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
             @Override
@@ -111,6 +114,12 @@ public class CreateDishActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, NewDishActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(starter);
     }
 
 }

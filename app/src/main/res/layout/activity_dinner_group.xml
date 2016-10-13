@@ -1,44 +1,74 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:id="@+id/coordinatorLayout"
     tools:context="com.empire.android.dinnertonight.DinnerGroupActivity">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="16 de outubro de 2016"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center_vertical"
-            android:textColor="@color/colorAccent"
-            android:layout_centerInParent="true"/>
-
-    </RelativeLayout>
-
-    <Button
-        android:id="@+id/dinnerGroupAddSuggestionButton"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Suggestion" />
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
-    <Button
-        android:id="@+id/dinnerGroupAddDishButton"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:minHeight="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:theme="@style/ToolBarStyle">
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create Dish" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <Button
-        android:id="@+id/dinnerGroupAddMemberButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add member to group"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary">
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="16 de outubro de 2016"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorAccent"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/dinnerGroupAddSuggestionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Suggestion" />
+
+        <Button
+            android:id="@+id/dinnerGroupAddDishButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create Dish" />
+
+        <Button
+            android:id="@+id/dinnerGroupAddMemberButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add member to group"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/dinnerGroupSuggestionRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

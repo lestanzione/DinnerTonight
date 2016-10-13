@@ -1,10 +1,12 @@
 package com.empire.android.dinnertonight;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -27,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     private int OPERATION_CODE = 0;
     private static final int CODE_LOGIN = 1;
     private static final int CODE_SIGNUP = 2;
+
+    private Toolbar toolbar;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
@@ -77,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Log.d(TAG, "User profile updated.");
 
-                                    mDatabase.child("users").child(uid).setValue(user);
+                                    mDatabase.child(Configs.NODE_USERS).child(uid).setValue(user);
                                 }
                             }
                         });
@@ -94,6 +98,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         findViewById(R.id.signUpButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,6 +114,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.loginAnonymousButton).setVisibility(View.INVISIBLE);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Login");
 
     }
 
@@ -217,13 +226,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void showMainActivity(){
-
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-
+        MainActivity.start(getApplicationContext());
     }
 
+    public static void start(Context context) {
+        Intent starter = new Intent(context, LoginActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(starter);
+    }
 
 }

@@ -2,13 +2,17 @@ package com.empire.android.dinnertonight;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,18 +33,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DinnerGroupActivity extends AppCompatActivity {
+public class DinnerGroupActivity extends AppCompatActivity implements SuggestionRecyclerAdapter.SuggestionListener {
 
     private static final String TAG = DinnerGroupActivity.class.getSimpleName();
 
     private static final int CODE_NEW_DISH = 1;
 
+    private Toolbar toolbar;
     private Button dinnerGroupAddMemberButton;
     private Button dinnerGroupAddSuggestionButton;
     private Button dinnerGroupAddDishButton;
+    private RecyclerView dinnerGroupSuggestionRecyclerView;
 
     private DinnerGroup dinnerGroup;
     private ArrayList<DinnerUser> dinnerUserList = new ArrayList<DinnerUser>();
+    private ArrayList<String> creationUsernameList = new ArrayList<String>();
+    private ArrayList<Suggestion> suggestionList = new ArrayList<Suggestion>();
+    private ArrayList<Dish> dishList = new ArrayList<Dish>();
 
     private DatabaseReference mDatabase;
 
@@ -56,9 +65,12 @@ public class DinnerGroupActivity extends AppCompatActivity {
             showLoginActivity();
         }
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         dinnerGroupAddMemberButton = (Button) findViewById(R.id.dinnerGroupAddMemberButton);
         dinnerGroupAddSuggestionButton = (Button) findViewById(R.id.dinnerGroupAddSuggestionButton);
         dinnerGroupAddDishButton = (Button) findViewById(R.id.dinnerGroupAddDishButton);
+        dinnerGroupSuggestionRecyclerView = (RecyclerView) findViewById(R.id.dinnerGroupSuggestionRecyclerView);
+        dinnerGroupSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
         dinnerGroupAddMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +82,7 @@ public class DinnerGroupActivity extends AppCompatActivity {
         dinnerGroupAddSuggestionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addSuggestion("123");
+                showDishesActivity();
             }
         });
 
@@ -81,9 +93,12 @@ public class DinnerGroupActivity extends AppCompatActivity {
             }
         });
 
+        setSupportActionBar(toolbar);
+
         dinnerGroup = (DinnerGroup) getIntent().getSerializableExtra("SELECTED_DINNER_GROUP");
 
         Log.d(TAG, "DinnerGroup name:" + dinnerGroup.getName());
+        getSupportActionBar().setTitle(dinnerGroup.getName());
 
         List<String> dinnerGroupMembers = dinnerGroup.getMembers();
 
@@ -97,12 +112,11 @@ public class DinnerGroupActivity extends AppCompatActivity {
     }
 
     private void showLoginActivity(){
+        LoginActivity.start(getApplicationContext());
+    }
 
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-
+    private void showDishesActivity(){
+        DishesActivity.start(getApplicationContext(), dinnerGroup);
     }
 
     private void getUserInformation(String userId){
@@ -133,7 +147,9 @@ public class DinnerGroupActivity extends AppCompatActivity {
 
         Log.d(TAG, "Getting today suggestions");
 
-        mDatabase.child("days").child(dinnerGroup.getId()).child("20160926").child("suggestions").addListenerForSingleValueEvent(
+        String currentDay = "20160926";
+
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -142,13 +158,21 @@ public class DinnerGroupActivity extends AppCompatActivity {
                         Iterable<DataSnapshot> allSuggestions = dataSnapshot.getChildren();
                         while(allSuggestions.iterator().hasNext()){
 
-                            DaySuggestion daySuggestion = allSuggestions.iterator().next().getValue(DaySuggestion.class);
-                            String dishId = daySuggestion.getDishId();
+                            Suggestion suggestion = allSuggestions.iterator().next().getValue(Suggestion.class);
+
+                            ArrayList<String> voteUsersList = suggestion.getVoteUsers();
+                            Log.d(TAG, "voteUsersList: " + voteUsersList);
+
+                            String dishId = suggestion.getDishId();
                             Log.d(TAG, "dishId: " + dishId);
+
+                            suggestionList.add(suggestion);
 
                             getDish(dishId);
 
                         }
+
+                        showSuggestions();
 
                     }
 
@@ -165,7 +189,7 @@ public class DinnerGroupActivity extends AppCompatActivity {
 
         Log.d(TAG, "Searching for dish with id: " + dishId);
 
-        mDatabase.child("dishes").child(dishId).addListenerForSingleValueEvent(
+        mDatabase.child(Configs.NODE_DISHES).child(dishId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -176,7 +200,12 @@ public class DinnerGroupActivity extends AppCompatActivity {
                         }
                         else {
                             Log.d(TAG, "Dish name: " + dish.getName());
+                            Log.d(TAG, "Dish creation user ID: " + dish.getCreationUserId());
+                            dishList.add(dish);
+                            getCreationUsername(dish.getCreationUserId());
+                            updateSuggestionRecyclerView();
                         }
+
 
                     }
 
@@ -189,17 +218,72 @@ public class DinnerGroupActivity extends AppCompatActivity {
 
     }
 
-    private void addSuggestion(String dishId){
+    private void getCreationUsername(String userId){
 
-        String newSuggestionKey = mDatabase.child("days").child(dinnerGroup.getId()).child("20160926").child("suggestions").push().getKey();
-        mDatabase.child("days").child(dinnerGroup.getId()).child("20160926").child("suggestions").child(newSuggestionKey).child("dishId").setValue(dishId);
+        boolean userFound = false;
+
+        for(int i=0; i<dinnerUserList.size(); i++){
+            //Log.d(TAG, "is " + dinnerUserList.get(i).getUid() + " == " + userId + " ?");
+            if(userId.equalsIgnoreCase(dinnerUserList.get(i).getUid())){
+                //Log.d(TAG, "found user: " + dinnerUserList.get(i).getDisplayName());
+                creationUsernameList.add(dinnerUserList.get(i).getDisplayName());
+                userFound = true;
+                break;
+            }
+        }
+
+        if(!userFound) {
+            creationUsernameList.add("");
+        }
+
+    }
+
+    private void showSuggestions(){
+
+        Log.d(TAG, "inside showSuggestions() method with " + dishList.size() + " suggestions");
+
+        SuggestionRecyclerAdapter suggestionRecyclerAdapter = new SuggestionRecyclerAdapter(getApplicationContext(), dishList, suggestionList, creationUsernameList, this);
+        dinnerGroupSuggestionRecyclerView.setAdapter(suggestionRecyclerAdapter);
+
+    }
+
+    private void updateSuggestionRecyclerView(){
+
+        Log.d(TAG, "inside updateSuggestionRecyclerView() method with " + dishList.size() + " suggestions");
+        Log.d(TAG, "inside updateSuggestionRecyclerView() method with " + creationUsernameList.size() + " users");
+
+        //for(String n : creationUsernameList){
+        //    Log.d(TAG, "name: " + n);
+        //}
+
+        dinnerGroupSuggestionRecyclerView.getAdapter().notifyDataSetChanged();
+
+    }
+
+    private void addSuggestion(Dish selectedDish){
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        String currentDay = "20160926";
+
+        String newSuggestionKey = mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).push().getKey();
+
+        Suggestion newSuggestion = new Suggestion();
+        newSuggestion.setId(newSuggestionKey);
+        newSuggestion.setDay(currentDay);
+        newSuggestion.setCreationUserId(user.getUid());
+        newSuggestion.setCreationTimestamp(Util.getTimestamp());
+        newSuggestion.setActive(true);
+        newSuggestion.setDishId(selectedDish.getId());
+
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).child(newSuggestionKey).setValue(newSuggestion);
 
         Toast.makeText(DinnerGroupActivity.this, "Suggestion added successfully!", Toast.LENGTH_SHORT).show();
 
     }
 
     private void createDish(){
-        Intent createDishIntent = new Intent(getApplicationContext(), CreateDishActivity.class);
+        Intent createDishIntent = new Intent(getApplicationContext(), NewDishActivity.class);
         startActivityForResult(createDishIntent, CODE_NEW_DISH);
     };
 
@@ -209,7 +293,7 @@ public class DinnerGroupActivity extends AppCompatActivity {
 
     private void checkUser(final String userEmail){
 
-        mDatabase.child("users").addListenerForSingleValueEvent(
+        mDatabase.child(Configs.NODE_USERS).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -252,12 +336,12 @@ public class DinnerGroupActivity extends AppCompatActivity {
 
         dinnerGroup.getMembers().add(uid);
 
-        Log.d(TAG, "/dinnerGroups/" + dinnerGroup.getId() + "/members");
+        Log.d(TAG, "/" + Configs.NODE_DINNER_GROUPS + "/" + dinnerGroup.getId() + "/" + Configs.NODE_MEMBERS);
         Log.d(TAG, "/user-dinnerGroups/" + uid + "/" + dinnerGroup.getId());
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/dinnerGroups/" + dinnerGroup.getId() + "/members", dinnerGroup.getMembers());
-        childUpdates.put("/user-dinnerGroups/" + uid + "/" + dinnerGroup.getId(), true);
+        childUpdates.put("/" + Configs.NODE_DINNER_GROUPS + "/" + dinnerGroup.getId() + "/" + Configs.NODE_MEMBERS, dinnerGroup.getMembers());
+        childUpdates.put("/" + Configs.NODE_USER_DINNER_GROUPS + "/" + uid + "/" + dinnerGroup.getId(), true);
 
         mDatabase.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
             @Override
@@ -290,7 +374,7 @@ public class DinnerGroupActivity extends AppCompatActivity {
                 Dish createdDish = (Dish) data.getSerializableExtra("CREATED_DISH");
                 Log.d(TAG, "Created dish ID: " + createdDish.getId());
 
-                addSuggestion(createdDish.getId());
+                addSuggestion(createdDish);
 
             }
             else if(resultCode == RESULT_CANCELED){
@@ -298,6 +382,41 @@ public class DinnerGroupActivity extends AppCompatActivity {
             }
 
         }
+
+    }
+
+    @Override
+    public void onSuggestionSelected(int position) {
+
+    }
+
+    @Override
+    public void onSuggestionVote(int position) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        String currentDay = "20160926";
+
+        Suggestion selectedSuggestion = suggestionList.get(position);
+
+        ArrayList<String> voteUsersList = selectedSuggestion.getVoteUsers();
+
+        if(voteUsersList.contains(user.getUid())){
+            //downvote
+            selectedSuggestion.removeVoteUser(user.getUid());
+            selectedSuggestion.removeVote();
+        }
+        else {
+            //upvote
+            selectedSuggestion.addVoteUser(user.getUid());
+            selectedSuggestion.addVote();
+        }
+
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).child(selectedSuggestion.getId()).setValue(selectedSuggestion);
+
+        Toast.makeText(DinnerGroupActivity.this, "Suggestion upvoted successfully!", Toast.LENGTH_SHORT).show();
+
+        updateSuggestionRecyclerView();
 
     }
 
@@ -361,11 +480,16 @@ public class DinnerGroupActivity extends AppCompatActivity {
                 }
             });
 
-
-
             return alertDialog;
         }
 
+    }
+
+    public static void start(Context context, DinnerGroup dinnerGroup) {
+        Intent starter = new Intent(context, DinnerGroupActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        starter.putExtra("SELECTED_DINNER_GROUP", dinnerGroup);
+        context.startActivity(starter);
     }
 
 }
