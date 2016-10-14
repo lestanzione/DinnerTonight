@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +41,7 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
     private static final int CODE_NEW_DISH = 1;
 
     private Toolbar toolbar;
+    private TextView dinnerGroupDateTitleTextView;
     private Button dinnerGroupAddMemberButton;
     private Button dinnerGroupAddSuggestionButton;
     private Button dinnerGroupAddDishButton;
@@ -66,11 +68,14 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
         }
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        dinnerGroupDateTitleTextView = (TextView) findViewById(R.id.dinnerGroupDateTitleTextView);
         dinnerGroupAddMemberButton = (Button) findViewById(R.id.dinnerGroupAddMemberButton);
         dinnerGroupAddSuggestionButton = (Button) findViewById(R.id.dinnerGroupAddSuggestionButton);
         dinnerGroupAddDishButton = (Button) findViewById(R.id.dinnerGroupAddDishButton);
         dinnerGroupSuggestionRecyclerView = (RecyclerView) findViewById(R.id.dinnerGroupSuggestionRecyclerView);
-        dinnerGroupSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        dinnerGroupSuggestionRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
+
+        dinnerGroupDateTitleTextView.setText(Util.getCurrentDateLabel());
 
         dinnerGroupAddMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,9 +152,9 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
         Log.d(TAG, "Getting today suggestions");
 
-        String currentDay = "20160926";
+        String currentDate = Util.getCurrentDate(); //"20160926";
 
-        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).addListenerForSingleValueEvent(
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDate).child(Configs.NODE_SUGGESTIONS).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -264,19 +269,19 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        String currentDay = "20160926";
+        String currentDate = Util.getCurrentDate(); //"20160926";
 
-        String newSuggestionKey = mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).push().getKey();
+        String newSuggestionKey = mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDate).child(Configs.NODE_SUGGESTIONS).push().getKey();
 
         Suggestion newSuggestion = new Suggestion();
         newSuggestion.setId(newSuggestionKey);
-        newSuggestion.setDay(currentDay);
+        newSuggestion.setDay(currentDate);
         newSuggestion.setCreationUserId(user.getUid());
         newSuggestion.setCreationTimestamp(Util.getTimestamp());
         newSuggestion.setActive(true);
         newSuggestion.setDishId(selectedDish.getId());
 
-        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).child(newSuggestionKey).setValue(newSuggestion);
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDate).child(Configs.NODE_SUGGESTIONS).child(newSuggestionKey).setValue(newSuggestion);
 
         Toast.makeText(DinnerGroupActivity.this, "Suggestion added successfully!", Toast.LENGTH_SHORT).show();
 
@@ -395,7 +400,7 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        String currentDay = "20160926";
+        String currentDate = Util.getCurrentDate(); //"20160926";
 
         Suggestion selectedSuggestion = suggestionList.get(position);
 
@@ -412,7 +417,7 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
             selectedSuggestion.addVote();
         }
 
-        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDay).child(Configs.NODE_SUGGESTIONS).child(selectedSuggestion.getId()).setValue(selectedSuggestion);
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDate).child(Configs.NODE_SUGGESTIONS).child(selectedSuggestion.getId()).setValue(selectedSuggestion);
 
         Toast.makeText(DinnerGroupActivity.this, "Suggestion upvoted successfully!", Toast.LENGTH_SHORT).show();
 

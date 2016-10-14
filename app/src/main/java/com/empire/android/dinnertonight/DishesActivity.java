@@ -13,9 +13,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +23,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class DishesActivity extends AppCompatActivity implements DishRecyclerAdapter.DishListener {
@@ -163,19 +159,19 @@ public class DishesActivity extends AppCompatActivity implements DishRecyclerAda
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        String currentDay = "20160926";
+        String currentDate = Util.getCurrentDate(); //"20160926";
 
-        String newSuggestionKey = mDatabase.child("days").child(dinnerGroup.getId()).child(currentDay).child("suggestions").push().getKey();
+        String newSuggestionKey = mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDate).child(Configs.NODE_SUGGESTIONS).push().getKey();
 
         Suggestion newSuggestion = new Suggestion();
         newSuggestion.setId(newSuggestionKey);
-        newSuggestion.setDay(currentDay);
+        newSuggestion.setDay(currentDate);
         newSuggestion.setCreationUserId(user.getUid());
         newSuggestion.setCreationTimestamp(Util.getTimestamp());
         newSuggestion.setActive(true);
         newSuggestion.setDishId(selectedDish.getId());
 
-        mDatabase.child("days").child(dinnerGroup.getId()).child(currentDay).child("suggestions").child(newSuggestionKey).setValue(newSuggestion);
+        mDatabase.child(Configs.NODE_DAYS).child(dinnerGroup.getId()).child(currentDate).child(Configs.NODE_SUGGESTIONS).child(newSuggestionKey).setValue(newSuggestion);
 
         Toast.makeText(DishesActivity.this, "Suggestion added successfully!", Toast.LENGTH_SHORT).show();
 

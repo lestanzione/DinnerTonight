@@ -84,7 +84,7 @@ public class SuggestionRecyclerAdapter extends RecyclerView.Adapter<SuggestionRe
 
         ArrayList<String> voteUsersList = currentSuggestion.getVoteUsers();
 
-        holder.suggestionItemUpvoteButton.setIconSizeDp(25);
+        holder.suggestionItemUpvoteButton.setIconSizeDp(15);
 
         if(voteUsersList.contains(user.getUid())){
             holder.suggestionItemUpvoteButton.setLiked(true);

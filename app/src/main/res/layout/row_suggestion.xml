@@ -4,70 +4,89 @@
     xmlns:app="http://schemas.android.com/tools"
     android:id="@+id/suggestionItemCardView"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="220dp"
+    android:layout_margin="8dp"
     card_view:cardCornerRadius="5dp"
-    card_view:cardElevation="5dp"
-    android:layout_margin="8dp">
+    card_view:cardElevation="5dp">
 
     <RelativeLayout
         android:id="@+id/suggestionItemLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/suggestionItemTimeAgoTextView"
+        <com.like.LikeButton
+            android:id="@+id/suggestionItemUpvoteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time Ago"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginEnd="16dp"/>
+            app:icon_type="heart"
+            app:icon_size="15dp"/>
+
+        <ImageView
+            android:id="@+id/suggestionItemBackgroundImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bg_food_1"
+            android:adjustViewBounds="true"
+            android:layout_alignParentTop="true"/>
 
         <TextView
             android:id="@+id/suggestionItemNameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Suggestion Name"
-            android:layout_toLeftOf="@id/suggestionItemTimeAgoTextView"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginEnd="16dp"/>
-
-        <TextView
-            android:id="@+id/suggestionItemVotesTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Votes"
-            android:layout_below="@id/suggestionItemNameTextView"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"/>
+            android:textSize="14sp"
+            android:maxLines="2"
+            android:layout_below="@id/suggestionItemBackgroundImageView"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"/>
 
         <TextView
             android:id="@+id/suggestionItemUsernameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Creation Username"
-            android:layout_below="@id/suggestionItemVotesTextView"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"/>
+            android:textSize="10sp"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@id/suggestionItemUpvoteButton"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"/>
 
-        <com.like.LikeButton
-            android:id="@+id/suggestionItemUpvoteButton"
+        <TextView
+            android:id="@+id/suggestionItemTimeAgoTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon_type="heart"
-            app:icon_size="35dp"
-            android:layout_below="@id/suggestionItemTimeAgoTextView"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"/>
+            android:text="Time Ago"
+            android:textSize="10sp"
+            android:layout_above="@id/suggestionItemUsernameTextView"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/suggestionItemVotesTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Votes"
+            android:textSize="10sp"
+            android:layout_above="@id/suggestionItemTimeAgoTextView"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"/>
 
     </RelativeLayout>
 
