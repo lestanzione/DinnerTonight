@@ -3,7 +3,9 @@ package com.empire.android.dinnertonight;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -19,6 +21,7 @@ public class DinnerGroupMemberRecyclerAdapter extends RecyclerView.Adapter<Dinne
 
     public interface DinnerGroupMemberListener{
         void onDinnerGroupMemberSelected(int position);
+        void onRemoveDinnerGroupMember(int position);
     }
 
     private static final String TAG = DinnerGroupMemberRecyclerAdapter.class.getSimpleName();
@@ -36,7 +39,7 @@ public class DinnerGroupMemberRecyclerAdapter extends RecyclerView.Adapter<Dinne
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_dinner_group_member, null);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_dinner_group_member, parent, false);
         return new ViewHolder(v);
 
     }
@@ -49,11 +52,29 @@ public class DinnerGroupMemberRecyclerAdapter extends RecyclerView.Adapter<Dinne
 
         holder.dinnerGroupMemberItemNameTextView.setText(currentDinnerGroupMember.getDisplayName());
 
-        holder.dinnerGroupMemberItemLayout.setOnClickListener(new View.OnClickListener() {
+        /*holder.dinnerGroupMemberItemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "selectedDinnerGroupMember: " + currentDinnerGroupMember.getDisplayName());
                 activity.get().onDinnerGroupMemberSelected(dinnerGroupMemberPosition);
+            }
+        });*/
+
+        holder.dinnerGroupMemberItemLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+
+                menu.setHeaderTitle("Select an action");
+                menu.add("Remove from group").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+
+                        Log.d(TAG, "selected user to remove: " + currentDinnerGroupMember.getDisplayName());
+                        activity.get().onRemoveDinnerGroupMember(dinnerGroupMemberPosition);
+
+                        return true;
+                    }
+                });
             }
         });
 

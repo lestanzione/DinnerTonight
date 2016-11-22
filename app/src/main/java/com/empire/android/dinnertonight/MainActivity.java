@@ -10,6 +10,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -35,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
     private boolean signedUser = false;
 
     private Toolbar toolbar;
-    private Button createDinnerGroupButton;
-    private Button logoutButton;
     private RecyclerView dinnerGroupRecyclerView;
 
     private DatabaseReference mDatabase;
@@ -51,26 +52,11 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        createDinnerGroupButton = (Button) findViewById(R.id.createDinnerGroupButton);
-        logoutButton = (Button) findViewById(R.id.logoutButton);
         dinnerGroupRecyclerView = (RecyclerView) findViewById(R.id.dinnerGroupRecyclerView);
         dinnerGroupRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Dinner Tonight");
-
-        createDinnerGroupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createDinnerGroup();
-            }
-        });
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -275,6 +261,31 @@ public class MainActivity extends AppCompatActivity implements DinnerGroupRecycl
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(starter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_dinner_group_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()){
+
+            case R.id.menuItemDinnerGroupListCreateGroup:
+                createDinnerGroup();
+                return true;
+            case R.id.menuItemDinnerGroupListLogout:
+                signOut();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+
     }
 
 }

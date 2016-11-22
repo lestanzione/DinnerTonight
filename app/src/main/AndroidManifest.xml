@@ -19,7 +19,8 @@
         <activity android:name=".NewDinnerGroupActivity" />
         <activity android:name=".DinnerGroupActivity" />
         <activity android:name=".NewDishActivity" />
-        <activity android:name=".DishesActivity"></activity>
+        <activity android:name=".DishesActivity" />
+        <activity android:name=".DinnerGroupMembersActivity"></activity>
     </application>
 
 </manifest>

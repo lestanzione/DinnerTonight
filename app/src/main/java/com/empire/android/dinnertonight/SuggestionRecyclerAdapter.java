@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,6 +21,7 @@ import com.like.OnLikeListener;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * Created by lstanzione on 8/11/2016.
@@ -82,6 +84,24 @@ public class SuggestionRecyclerAdapter extends RecyclerView.Adapter<SuggestionRe
             }
         });*/
 
+        Random rand = new Random();
+        int randomBg = rand.nextInt(3) + 1;
+
+        switch(randomBg){
+            case 1:
+                holder.suggestionItemBackgroundImageView.setImageResource(R.drawable.bg_food_1);
+                break;
+            case 2:
+                holder.suggestionItemBackgroundImageView.setImageResource(R.drawable.bg_food_2);
+                break;
+            case 3:
+                holder.suggestionItemBackgroundImageView.setImageResource(R.drawable.bg_food_3);
+                break;
+            default:
+                holder.suggestionItemBackgroundImageView.setImageResource(R.drawable.bg_food_1);
+                break;
+        }
+
         ArrayList<String> voteUsersList = currentSuggestion.getVoteUsers();
 
         holder.suggestionItemUpvoteButton.setIconSizeDp(15);
@@ -122,6 +142,7 @@ public class SuggestionRecyclerAdapter extends RecyclerView.Adapter<SuggestionRe
     public static class ViewHolder extends RecyclerView.ViewHolder {
         CardView suggestionItemCardView;
         //LinearLayout suggestionItemLayout;
+        ImageView suggestionItemBackgroundImageView;
         TextView suggestionItemNameTextView;
         TextView suggestionItemUsernameTextView;
         TextView suggestionItemVotesTextView;
@@ -132,6 +153,7 @@ public class SuggestionRecyclerAdapter extends RecyclerView.Adapter<SuggestionRe
             super(view);
             this.suggestionItemCardView = (CardView) view.findViewById(R.id.suggestionItemCardView);
             //this.suggestionItemLayout = (LinearLayout) view.findViewById(R.id.suggestionItemLayout);
+            this.suggestionItemBackgroundImageView = (ImageView) view.findViewById(R.id.suggestionItemBackgroundImageView);
             this.suggestionItemNameTextView = (TextView) view.findViewById(R.id.suggestionItemNameTextView);
             this.suggestionItemUsernameTextView = (TextView) view.findViewById(R.id.suggestionItemUsernameTextView);
             this.suggestionItemVotesTextView = (TextView) view.findViewById(R.id.suggestionItemVotesTextView);

@@ -15,6 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,9 +45,6 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
     private Toolbar toolbar;
     private TextView dinnerGroupDateTitleTextView;
-    private Button dinnerGroupAddMemberButton;
-    private Button dinnerGroupAddSuggestionButton;
-    private Button dinnerGroupAddDishButton;
     private RecyclerView dinnerGroupSuggestionRecyclerView;
 
     private DinnerGroup dinnerGroup;
@@ -69,34 +69,10 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         dinnerGroupDateTitleTextView = (TextView) findViewById(R.id.dinnerGroupDateTitleTextView);
-        dinnerGroupAddMemberButton = (Button) findViewById(R.id.dinnerGroupAddMemberButton);
-        dinnerGroupAddSuggestionButton = (Button) findViewById(R.id.dinnerGroupAddSuggestionButton);
-        dinnerGroupAddDishButton = (Button) findViewById(R.id.dinnerGroupAddDishButton);
         dinnerGroupSuggestionRecyclerView = (RecyclerView) findViewById(R.id.dinnerGroupSuggestionRecyclerView);
         dinnerGroupSuggestionRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
 
         dinnerGroupDateTitleTextView.setText(Util.getCurrentDateLabel());
-
-        dinnerGroupAddMemberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddUserDialog();
-            }
-        });
-
-        dinnerGroupAddSuggestionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDishesActivity();
-            }
-        });
-
-        dinnerGroupAddDishButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createDish();
-            }
-        });
 
         setSupportActionBar(toolbar);
 
@@ -122,6 +98,10 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
     private void showDishesActivity(){
         DishesActivity.start(getApplicationContext(), dinnerGroup);
+    }
+
+    private void showDinnerGroupMembersActivity(){
+        DinnerGroupMembersActivity.start(this, dinnerGroup);
     }
 
     private void getUserInformation(String userId){
@@ -292,82 +272,6 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
         startActivityForResult(createDishIntent, CODE_NEW_DISH);
     };
 
-    private void showAddUserDialog(){
-        new AddUserDialogFragment().show(getSupportFragmentManager(), null);
-    }
-
-    private void checkUser(final String userEmail){
-
-        mDatabase.child(Configs.NODE_USERS).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        Log.d(TAG, "Users count: " + dataSnapshot.getChildrenCount());
-                        Iterable<DataSnapshot> allUsers = dataSnapshot.getChildren();
-                        while(allUsers.iterator().hasNext()){
-
-//                            DataSnapshot currentUser = allUsers.iterator().next();
-//                            String email = currentUser.child("email").getValue().toString();
-//                            Log.d(TAG, "currentUser email: " + email);
-
-                            DinnerUser dinnerUser = allUsers.iterator().next().getValue(DinnerUser.class);
-                            String email = dinnerUser.getEmail();
-                            Log.d(TAG, "email: " + email);
-
-                            if(email.equalsIgnoreCase(userEmail)){
-                                String uid = dinnerUser.getUid();
-                                //String uid = currentUser.child("uid").getValue().toString();
-                                Log.d(TAG, "Found user " + uid + " with email: " + userEmail);
-
-                                addUser(uid);
-
-                            }
-
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.w(TAG, "checkUser:onCancelled", databaseError.toException());
-                    }
-                }
-        );
-
-    }
-
-    private void addUser(String uid){
-
-        dinnerGroup.getMembers().add(uid);
-
-        Log.d(TAG, "/" + Configs.NODE_DINNER_GROUPS + "/" + dinnerGroup.getId() + "/" + Configs.NODE_MEMBERS);
-        Log.d(TAG, "/user-dinnerGroups/" + uid + "/" + dinnerGroup.getId());
-
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + Configs.NODE_DINNER_GROUPS + "/" + dinnerGroup.getId() + "/" + Configs.NODE_MEMBERS, dinnerGroup.getMembers());
-        childUpdates.put("/" + Configs.NODE_USER_DINNER_GROUPS + "/" + uid + "/" + dinnerGroup.getId(), true);
-
-        mDatabase.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-
-                if(databaseError == null){
-
-                    Log.d(TAG, "Added successfully!");
-
-                }
-                else{
-
-                    Log.d(TAG, "Error adding user to group: " + databaseError.getMessage());
-
-                }
-
-            }
-        });
-
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -425,76 +329,39 @@ public class DinnerGroupActivity extends AppCompatActivity implements Suggestion
 
     }
 
-    @SuppressLint("ValidFragment")
-    public class AddUserDialogFragment extends DialogFragment {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-
-            View view = inflater.inflate(R.layout.dialog_add_user, null);
-
-            final EditText addUserToGroupEditText = (EditText) view.findViewById(R.id.addUserToGroupEditText);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Add user to group")
-                    .setView(view)
-                    .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
-                        }
-                    });
-
-            final AlertDialog alertDialog = builder.create();
-
-            //used to override the positive button event
-            //that way is possible to prevent the dialog dismiss if the input is wrong
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
-                @Override
-                public void onShow(DialogInterface dialog) {
-
-                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-
-                            String userEmail = addUserToGroupEditText.getText().toString().trim();
-                            checkUser(userEmail);
-
-                            if (userEmail.isEmpty()) {
-
-
-                                //Snackbar.make(itemsCoordinatorLayout, getResources().getString(R.string.party_saved_error), Snackbar.LENGTH_SHORT).show();
-                                //new NoNamePartyDialogFragment().show(getSupportFragmentManager(), null);
-                            } else {
-                                //saveList(partyName);
-                                alertDialog.dismiss();
-                            }
-
-                        }
-                    });
-
-                }
-            });
-
-            return alertDialog;
-        }
-
-    }
-
     public static void start(Context context, DinnerGroup dinnerGroup) {
         Intent starter = new Intent(context, DinnerGroupActivity.class);
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra("SELECTED_DINNER_GROUP", dinnerGroup);
         context.startActivity(starter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_dinner_group, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()){
+
+            case R.id.menuItemDinnerGroupAddSuggestion:
+                showDishesActivity();
+                return true;
+            case R.id.menuItemDinnerGroupCreateDish:
+                createDish();
+                return true;
+            case R.id.menuItemDinnerGroupMembers:
+                showDinnerGroupMembersActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+
     }
 
 }
